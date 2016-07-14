@@ -130,7 +130,15 @@ module CI
             builder.skipped
           else
             failures.each do |failure|
-              tag = failure.error? ? :error : :failure
+              if failure.error?
+                tag = :error
+              elsif failure.failure?
+                tag = :failure
+              elsif failure.skipped?
+                tag = :skipped
+              else
+                next
+              end
 
               builder.tag!(tag, type: truncate_at_newline(failure.name), message: truncate_at_newline(failure.message)) do
                 builder.text!(failure.message + " (#{failure.name})\n")
